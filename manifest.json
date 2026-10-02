@@ -1,0 +1,1 @@
+{"name":"Mi diario","short_name":"Mi diario","description":"Cuenta lo que te pasa en el cole con tu voz","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#4f46e5","theme_color":"#4f46e5","lang":"es","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
