@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi diario</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{--p:#4f46e5;--pl:#e0e7ff;--bg:#f8fafc;--t:#1e293b;--m:#64748b;--b:#e2e8f0;--d:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--t);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+button{font:inherit;cursor:pointer}
+header{background:#fff;padding:12px 16px;border-bottom:1px solid var(--b);display:flex;justify-content:space-between;align-items:center}
+h1{font-size:1.2rem;color:var(--p)}
+.ib{background:none;border:none;font-size:1.25rem;padding:5px;border-radius:8px}
+.mot{background:var(--pl);color:#3730a3;padding:10px 16px;font-size:.92rem;font-weight:500;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.list{flex:1;overflow-y:auto;padding:14px 16px 100px;display:flex;flex-direction:column;gap:12px}
+.empty{text-align:center;color:var(--m);padding:50px 20px}.empty span{font-size:3rem;display:block}
+.card{background:#fff;border:1px solid var(--b);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card.ok{opacity:.65}
+.ch{display:flex;justify-content:space-between;gap:8px}.dt,.mu{font-size:.8rem;color:var(--m)}
+.cd{font-size:.9rem;color:var(--m);white-space:pre-wrap}
+.ap{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--b);border-radius:10px;padding:6px 10px;font-size:.85rem}
+.pb{background:var(--p);color:#fff;border:none;width:34px;height:34px;border-radius:50%}
+.cf{display:flex;flex-wrap:wrap;gap:2px;border-top:1px solid var(--b);padding-top:6px}
+.fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:var(--p);color:#fff;border:none;font-size:2rem;box-shadow:0 8px 14px rgba(79,70,229,.4);z-index:10}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;z-index:100;opacity:0;visibility:hidden;transition:.25s}
+.ov.open{opacity:1;visibility:visible}
+.sheet{background:#fff;width:100%;max-height:92dvh;border-radius:24px 24px 0 0;padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.mh{display:flex;justify-content:space-between;align-items:center}.mh h2{font-size:1.2rem}
+.fg{display:flex;flex-direction:column;gap:6px}.fg>label{font-weight:700;font-size:.95rem}
+.g{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--b);background:#fff;border-radius:14px;padding:10px 12px;font-size:.95rem}
+.chip.on{border-color:var(--p);background:var(--pl);font-weight:600}
+body.peque .chip{font-size:1.1rem;padding:14px}
+.fc{background:var(--bg);border:1px solid var(--b);padding:12px;border-radius:10px;font-size:1rem;width:100%;outline:none}
+textarea.fc{height:90px;resize:none}
+body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.mayor #writeBtn{display:none}
+.rec{background:var(--bg);border:2px dashed var(--b);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.rb{width:76px;height:76px;border-radius:50%;background:var(--d);color:#fff;border:none;font-size:2rem}
+.rb.on{animation:pu 1.5s infinite}
+@keyframes pu{0%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}70%{box-shadow:0 0 0 14px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+.bp{background:var(--p);color:#fff;border:none;padding:15px;border-radius:12px;font-size:1.05rem;font-weight:600;width:100%}
+.bs{background:var(--pl);color:var(--p);border:none;padding:12px;border-radius:10px;font-weight:600;width:100%}
+.lnk{background:none;border:none;color:var(--d);text-decoration:underline;font-size:.85rem}
+.tel{display:block;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px;text-decoration:none;color:var(--t)}
+.tel b{display:block;font-size:1.2rem;color:#c2410c}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(120px);background:#1e293b;color:#fff;padding:12px 18px;border-radius:24px;font-size:.9rem;max-width:90%;display:flex;gap:10px;align-items:center;transition:.3s;z-index:600;opacity:0;visibility:hidden}
+.toast.show{transform:translateX(-50%);opacity:1;visibility:visible}
+.ta{background:var(--p);color:#fff;border:none;padding:4px 10px;border-radius:14px}
+#lock{z-index:500;background:var(--p);align-items:center;justify-content:center;flex-direction:column;gap:18px;color:#fff;text-align:center;padding:20px}
+.dots{display:flex;gap:14px}.dots i{width:16px;height:16px;border-radius:50%;border:2px solid #fff}.dots i.f{background:#fff}
+.pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
+.pad button{height:72px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#fff;font-size:1.6rem}
+#age{z-index:450;background:#fff;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;text-align:center}
+#age h2{font-size:1.6rem;color:var(--p)}#age .bp{font-size:1.3rem;padding:22px}
+.th{position:relative;width:88px;height:88px;border-radius:10px;overflow:hidden;background:#000}
+.th img,.th video{width:100%;height:100%;object-fit:cover}
+.th button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:24px;height:24px}
+#print{display:none}
+@page{size:A4;margin:15mm}
+@media print{body{height:auto;overflow:visible;display:block}body>*:not(#print){display:none!important}#print{display:block;color:#000;font-size:12pt}#print h1{color:#000}.pr{border-bottom:1px solid #999;padding:8px 0;page-break-inside:avoid}}
+.sheet{padding-bottom:84px}
+.ib{min-width:44px;min-height:44px}
+:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.rall{position:fixed;left:16px;bottom:20px;width:52px;height:52px;border-radius:50%;background:#0f766e;color:#fff;border:3px solid #fff;font-size:1.5rem;z-index:700;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body class="peque">
+<header><h1>📔 Mi diario</h1><div><button class="ib" id="helpBtn" title="Ayuda">🆘</button><button class="ib" id="setBtn" title="Ajustes">⚙️</button></div></header>
+<div class="mot"><span id="motT"></span><button class="ib" id="motS">🔊</button></div>
+<div class="list" id="list"></div>
+<button class="fab" id="openBtn" aria-label="Contar algo">＋</button>
+<div id="print"></div>
+<input type="file" id="impFile" accept=".json,.txt,application/json,text/plain" hidden>
+
+<div class="ov" id="form"><div class="sheet">
+  <div class="mh"><h2 id="fTitle">Cuéntame qué ha pasado</h2><button class="ib" id="closeForm">✕</button></div>
+  <button class="bs" id="readBtn">🔊 Léeme las preguntas</button>
+  <div class="fg"><label>¿Qué ha pasado?</label><div class="g" id="fType"></div></div>
+  <div class="fg"><label>¿Cómo te has sentido?</label><div class="g" id="fFeel"></div></div>
+  <div class="fg"><label>🎙️ Cuéntalo con tu voz</label>
+    <div class="rec"><button type="button" class="rb" id="recBtn">🎙️</button><div id="recStatus" aria-live="polite" style="font-size:.9rem;color:var(--m)">Toca y habla</div>
+    <audio id="prev" controls style="display:none;width:100%"></audio><button type="button" class="lnk" id="delAudio" style="display:none">Quitar audio</button></div></div>
+  <div class="fg"><label>¿Quién ha sido?</label><input class="fc" id="fWho" placeholder="Nombre o cómo es"></div>
+  <div class="fg"><label>¿Dónde ha pasado?</label><div class="g" id="fWhere"></div></div>
+  <div class="fg"><label>¿Cuándo pasó?</label><input type="date" class="fc" id="fDate"></div>
+  <div class="fg" id="fMediaWrap" style="display:none"><label>📷 Fotos o vídeos de lo que ha pasado</label>
+    <button type="button" class="bs" id="mediaBtn">＋ Añadir foto o vídeo</button><div class="g" id="mediaList"></div>
+    <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden></div>
+  <button class="bs" id="writeBtn">✍️ Prefiero escribir</button>
+  <div class="fg" id="fDescWrap"><label>Escríbelo aquí</label><textarea class="fc" id="fDesc" placeholder="Qué pasó, quién lo vio, cuántas veces..."></textarea></div>
+  <button class="bp" id="saveBtn">Guardar</button>
+</div></div>
+
+<div class="ov" id="help"><div class="sheet">
+  <div class="mh"><h2>🆘 Necesito ayuda</h2><button class="ib" data-close="help">✕</button></div>
+  <p>Llamar es gratis y puedes hacerlo sin decir tu nombre. Si estás en peligro ahora, llama al 112.</p>
+  <a class="tel" href="tel:112"><b>112</b>Emergencias (peligro ahora)</a>
+  <a class="tel" href="tel:116111"><b>116 111</b>Infància Respon (Generalitat de Catalunya)</a>
+  <a class="tel" href="tel:900202010"><b>900 20 20 10</b>ANAR · Ayuda a niños y adolescentes</a>
+  <a class="tel" href="tel:900018018"><b>900 018 018</b>Teléfono contra el acoso escolar (Ministerio de Educación)</a>
+  <p style="font-size:.85rem;color:var(--m)">Díselo también a mamá, papá o a un profe de confianza.</p>
+</div></div>
+
+<div class="ov" id="set"><div class="sheet">
+  <div class="mh"><h2>⚙️ Ajustes</h2><button class="ib" data-close="set">✕</button></div>
+  <div class="fg"><label>Edad</label><div class="g"><button class="chip" data-m="peque">5-10 años (voz)</button><button class="chip" data-m="mayor">11+ años (texto y voz)</button></div></div>
+  <div class="fg"><label>Correo de mamá/papá</label><input type="email" class="fc" id="sEmail" placeholder="correo@ejemplo.com"></div>
+  <button class="bs" id="pinBtn">🔒 Cambiar PIN</button>
+  <button class="bs" id="pdfBtn">📄 Crear PDF (para el colegio)</button>
+  <div class="fg"><label>☁️ Copia en Google Drive</label>
+    <p id="cloudInfo" style="font-size:.85rem;color:var(--m)"></p>
+    <button class="bs" id="cOn">Activar copia automática</button>
+    <button class="bs" id="cNow">Copia ahora</button>
+    <button class="bs" id="cRes">Restaurar desde Drive</button></div>
+  <div class="fg"><label>💾 Copia manual</label><button class="bs" id="shareBtn">☁️ Guardar copia (enviar a Drive)</button><button class="bs" id="expBtn">Exportar archivo</button><button class="bs" id="impBtn">Importar archivo</button></div>
+</div></div>
+
+<div class="ov" id="age"><div style="font-size:3rem">📔</div><h2>¡Hola! ¿Cuántos años tienes?</h2>
+  <button class="bs" id="ageS">🔊 Léeme</button>
+  <button class="bp" data-age="peque">🧒 De 5 a 10 años</button>
+  <button class="bp" data-age="mayor">🧑 11 años o más</button>
+  <p style="font-size:.85rem;color:var(--m)">Luego se puede cambiar en ⚙️ Ajustes.</p></div>
+<div class="ov" id="lock"><div id="lockT" aria-live="polite" style="font-size:1.3rem;font-weight:700"></div><div class="dots" id="dots"></div>
+  <div class="pad" id="pad"></div><button class="lnk" id="forgot" style="color:#fff">Olvidé mi PIN</button></div>
+<button class="rall" id="readAll" aria-label="Leer en voz alta lo que hay en pantalla">🔊</button>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button class="ta" id="toastAct" style="display:none">Deshacer</button></div>
+
+<script>
+const KEY='agenda_escolar_v2',CLIENT_ID='';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const fmt=d=>d?d.split('-').reverse().join('/'):'';
+const TYPES={pegar:['👊','Me han pegado'],insulto:['🗣️','Me insultan o se burlan'],chinchar:['😏','Me chinchan o me provocan'],solo:['🚫','Me dejan solo o me excluyen'],amenaza:['😨','Me amenazan o me persiguen'],cosas:['🎒','Me quitan o rompen mis cosas'],redes:['📱','Por el móvil o las redes'],otra:['❓','Otra cosa']};
+const FEEL={triste:['😢','Triste'],miedo:['😰','Miedo'],enfado:['😡','Enfadado/a'],solo:['😔','Solo/a'],verguenza:['😳','Vergüenza'],tripa:['😖','Mal en la tripa'],bien:['🙂','Mejor ahora']};
+const WHERE={Recreo:['🌳','Recreo'],Clase:['🏫','Clase'],Baño:['🚻','Baño'],Comedor:['🍽️','Comedor'],Autobús:['🚌','Autobús'],Salida:['🚪','Salida'],Otro:['📍','Otro sitio']};
+const FR=['Contarlo no es chivarse: es pedir ayuda 💪','No tienes la culpa de lo que te hacen','Eres valiente por contarlo','Guardar un secreto así pesa. Contarlo lo hace más ligero','Nadie merece que le traten mal','Hablar con un adulto de confianza es de listos','No estás solo/a. Hay gente que te quiere ayudar'];
+
+function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}s=s&&Array.isArray(s.items)?s:{items:[]};s.settings={mode:'peque',email:'',cloud:false,pin:'',salt:'',...(s.settings||{})};return s}
+let state=load(),editingId=null,curBlob=null,keepAudio=false,rec=null,chunks=[],recording=false,delCache=null,tT=null,abT=null,tok=null,tokExp=0,tc=null,pend=null;
+let sType='',sFeel=new Set(),sWhere='',mList=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));autoBackup();return true}catch(e){toast('⚠️ Almacenamiento lleno');return false}}
+function toast(m,undo,ms){$('toastMsg').textContent=m;const a=$('toastAct');if(undo){a.style.display='block';a.onclick=()=>{undo();$('toast').classList.remove('show')}}else a.style.display='none';$('toast').classList.add('show');clearTimeout(tT);tT=setTimeout(()=>$('toast').classList.remove('show'),ms||4000)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='es-ES';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+
+/* IndexedDB audio */
+const dbp=new Promise((res,rej)=>{const r=indexedDB.open('agenda_audio',1);r.onupgradeneeded=()=>r.result.createObjectStore('a');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const tx=(m,fn)=>dbp.then(db=>new Promise((res,rej)=>{const t=db.transaction('a',m);const q=fn(t.objectStore('a'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)}));
+const putA=(id,b)=>tx('readwrite',s=>s.put(b,id)),getA=id=>tx('readonly',s=>s.get(id)),delA=id=>tx('readwrite',s=>s.delete(id));
+
+/* Lista */
+const summary=i=>{const T=TYPES[i.type]||TYPES.otra;return `${fmt(i.date)} · ${i.title||T[1]}${i.where?' · '+i.where:''}${i.who?' · Quién: '+i.who:''}${(i.feelings||[]).length?' · Me sentí: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', '):''}${i.desc?'\n'+i.desc:''}`};
+function render(){
+  const L=[...state.items].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.createdAt-a.createdAt);
+  if(!L.length){$('list').innerHTML='<div class="empty"><span>📔</span><h3>Aquí puedes contar lo que te pasa</h3><p>Toca ＋ y cuéntalo con tu voz.</p></div>';return}
+  $('list').innerHTML=L.map(i=>{const T=TYPES[i.type]||TYPES.otra;return `<div class="card ${i.status==='resuelto'?'ok':''}"><div class="ch"><b>${T[0]} ${esc(i.title||T[1])}</b><span class="dt">📅 ${fmt(i.date)}</span></div>
+  ${i.where||i.who?`<div class="mu">${i.where?'📍 '+esc(i.where):''} ${i.who?'👤 '+esc(i.who):''}</div>`:''}
+  ${(i.feelings||[]).length?`<div>${i.feelings.map(k=>FEEL[k]?FEEL[k][0]:'').join(' ')}</div>`:''}
+  ${i.desc?`<div class="cd">${esc(i.desc)}</div>`:''}
+  ${i.hasAudio?`<div class="ap"><button class="pb" data-a="play" data-id="${i.id}" aria-label="Reproducir nota de voz">▶</button>Nota de voz</div>`:''}
+  ${(i.media||[]).length?`<div class="g" data-mid="${i.id}"></div>`:''}
+  <div class="cf"><button class="ib" data-a="say" data-id="${i.id}" title="Leer">🔊</button><button class="ib" data-a="share" data-id="${i.id}" title="Compartir">📤</button><button class="ib" data-a="mail" data-id="${i.id}" title="Correo">✉️</button><button class="ib" data-a="tog" data-id="${i.id}" title="Solucionado">${i.status==='resuelto'?'⏳':'✅'}</button><button class="ib" data-a="edit" data-id="${i.id}" title="Editar">✏️</button><button class="ib" data-a="del" data-id="${i.id}" title="Borrar">🗑️</button></div></div>`}).join('');
+  loadThumbs();
+}
+$('list').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.id,it=state.items.find(i=>i.id===id);if(!it)return;const a=b.dataset.a;
+  if(a==='play'){try{const bl=await getA(id);if(!bl)throw 0;const au=new Audio(URL.createObjectURL(bl));await au.play()}catch(_){toast('No se pudo reproducir')}}
+  else if(a==='say')speak(summary(it));
+  else if(a==='share'){const t=summary(it);if(navigator.share)navigator.share({title:'Mi diario',text:t}).catch(()=>{});else mail(it)}
+  else if(a==='mail')mail(it);
+  else if(a==='tog'){it.status=it.status==='resuelto'?'pendiente':'resuelto';save();render()}
+  else if(a==='edit')openForm(it);
+  else if(a==='del'){const idx=state.items.indexOf(it);delCache={it,idx};state.items.splice(idx,1);save();render();toast('Borrado',()=>{if(delCache){state.items.splice(delCache.idx,0,delCache.it);save();render();delCache=null}})}
+});
+function mail(i){location.href='mailto:'+encodeURIComponent(state.settings.email||'')+'?subject='+encodeURIComponent('Mi diario: '+fmt(i.date))+'&body='+encodeURIComponent(summary(i))}
+
+/* Formulario */
+function chips(el,obj,on,multi){el.innerHTML=Object.entries(obj).map(([k,v])=>`<button type="button" class="chip${(multi?on.has(k):on===k)?' on':''}" aria-pressed="${multi?on.has(k):on===k}" data-k="${k}">${v[0]} ${v[1]}</button>`).join('')}
+function drawChips(){chips($('fType'),TYPES,sType);chips($('fFeel'),FEEL,sFeel,true);chips($('fWhere'),WHERE,sWhere);showMedia()}
+function bind(el,obj,fn){el.onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;fn(k);drawChips();if(state.settings.mode==='peque')speak(obj[k][1])}}
+bind($('fType'),TYPES,k=>sType=k);bind($('fFeel'),FEEL,k=>sFeel.has(k)?sFeel.delete(k):sFeel.add(k));bind($('fWhere'),WHERE,k=>sWhere=sWhere===k?'':k);
+function resetAudio(){curBlob=null;keepAudio=false;$('prev').style.display='none';$('prev').removeAttribute('src');$('delAudio').style.display='none';$('recStatus').textContent='Toca y habla'}
+async function openForm(it){
+  stopRec();resetAudio();mList=[];editingId=it?it.id:null;sType=it?it.type||'':'';sFeel=new Set(it?it.feelings||[]:[]);sWhere=it?it.where||'':'';
+  $('fWho').value=it?it.who||'':'';$('fDate').value=it?it.date:today();$('fDesc').value=it?it.desc||'':'';
+  document.body.classList.toggle('w',!!(it&&it.desc));drawChips();
+  if(it&&it.hasAudio){try{const bl=await getA(it.id);if(bl){keepAudio=true;$('prev').src=URL.createObjectURL(bl);$('prev').style.display='block';$('delAudio').style.display='inline';$('recStatus').textContent='Audio guardado. Graba otro para cambiarlo'}}catch(e){}}
+  $('form').classList.add('open');
+  if(it&&it.media){for(const m of it.media){const b=await getA(m.k).catch(()=>null);if(b)mList.push({blob:b,t:m.t,k:m.k})}drawMedia()}
+}
+const closeForm=()=>{stopRec();$('form').classList.remove('open')};
+$('openBtn').onclick=()=>openForm(null);$('closeForm').onclick=closeForm;$('delAudio').onclick=resetAudio;
+$('writeBtn').onclick=()=>document.body.classList.add('w');
+$('readBtn').onclick=()=>speak('¿Qué ha pasado? '+Object.values(TYPES).map(v=>v[1]).join(', ')+'. ¿Cómo te has sentido? '+Object.values(FEEL).map(v=>v[1]).join(', ')+'. Cuéntalo con tu voz. ¿Quién ha sido? ¿Dónde ha pasado? ¿Cuándo pasó?');
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove('open'));
+
+/* Grabación */
+const pickMime=()=>window.MediaRecorder?['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg'].find(t=>MediaRecorder.isTypeSupported(t))||'':'';
+async function startRec(){
+  if(!navigator.mediaDevices||!window.MediaRecorder){toast('Tu navegador no puede grabar');return}
+  try{const st=await navigator.mediaDevices.getUserMedia({audio:true});const mt=pickMime();rec=new MediaRecorder(st,mt?{mimeType:mt}:undefined);chunks=[];
+    rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+    rec.onstop=()=>{st.getTracks().forEach(t=>t.stop());curBlob=new Blob(chunks,{type:rec.mimeType||mt||'audio/webm'});keepAudio=false;$('prev').src=URL.createObjectURL(curBlob);$('prev').style.display='block';$('delAudio').style.display='inline';$('recStatus').textContent='Audio listo ✅'};
+    rec.start();recording=true;$('recBtn').classList.add('on');$('recBtn').textContent='⏹️';$('recBtn').setAttribute('aria-label','Parar grabación');$('recStatus').textContent='Te escucho... toca para parar'}
+  catch(e){toast('Permite el micrófono para grabar')}
+}
+function stopRec(){if(recording&&rec&&rec.state!=='inactive')rec.stop();recording=false;$('recBtn').classList.remove('on');$('recBtn').textContent='🎙️';$('recBtn').setAttribute('aria-label','Grabar nota de voz')}
+$('recBtn').onclick=()=>recording?stopRec():startRec();
+
+$('saveBtn').onclick=async()=>{
+  if(!sType){toast('Elige qué ha pasado');return}
+  stopRec();await new Promise(r=>setTimeout(r,200));
+  const id=editingId||uid(),old=state.items.find(i=>i.id===id);let hasAudio=false;
+  try{if(curBlob){await putA(id,curBlob);hasAudio=true}else if(keepAudio)hasAudio=true;else if(old&&old.hasAudio)await delA(id)}catch(e){toast('No se pudo guardar el audio')}
+  const media=[];
+  try{for(const m of mList){let k=m.k;if(!k){k=id+':m:'+uid();await putA(k,m.blob)}media.push({k,t:m.t})}
+    if(old&&old.media)for(const o of old.media)if(!media.some(x=>x.k===o.k))await delA(o.k)}catch(e){toast('No se pudo guardar algún archivo')}
+  const item={id,title:old?old.title:'',type:sType,media,feelings:[...sFeel],where:sWhere,who:$('fWho').value.trim(),date:$('fDate').value||today(),desc:$('fDesc').value.trim(),hasAudio,status:old?old.status:'pendiente',createdAt:old?old.createdAt:Date.now()};
+  if(old)state.items[state.items.indexOf(old)]=item;else state.items.push(item);
+  if(save()){render();closeForm();const m='Has hecho bien en contarlo 💜 Cuéntaselo también a mamá, papá o a un profe de confianza.';toast(m,null,7000);if(state.settings.mode==='peque')speak(m)}
+};
+
+/* Ajustes */
+function drawSet(){['cOn','cNow','cRes'].forEach(i=>$(i).style.display=CLIENT_ID?'block':'none');document.querySelectorAll('[data-m]').forEach(b=>{const on=b.dataset.m===state.settings.mode;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});$('sEmail').value=state.settings.email;
+  $('cloudInfo').textContent=CLIENT_ID?(state.settings.cloud?'Activada: se copia sola al guardar.':'Desactivada.'):'La copia automática no está activada. Usa "Guardar copia" en la sección de abajo.'}
+function applyMode(){document.body.classList.remove('peque','mayor');document.body.classList.add(state.settings.mode)}
+$('setBtn').onclick=()=>{drawSet();$('set').classList.add('open')};$('helpBtn').onclick=()=>$('help').classList.add('open');
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{state.settings.mode=b.dataset.m;applyMode();save();drawSet()});
+$('sEmail').onchange=()=>{state.settings.email=$('sEmail').value.trim();save()};
+function setMot(){$('motT').textContent=FR[Math.floor(Math.random()*FR.length)]}
+$('motS').onclick=()=>speak($('motT').textContent);
+
+/* PDF */
+$('pdfBtn').onclick=()=>{
+  const R=[...state.items].sort((a,b)=>(a.date||'').localeCompare(b.date||'')||a.createdAt-b.createdAt);
+  $('print').innerHTML=`<h1>Registro de incidentes</h1><p>Generado el ${fmt(today())} · ${R.length} registros, ordenados por fecha.</p>`+R.map((i,n)=>{const T=TYPES[i.type]||TYPES.otra;return `<div class="pr"><b>${n+1}. ${esc(i.title||T[1])}</b><br>Fecha del suceso: ${fmt(i.date)} · Registrado: ${new Date(i.createdAt).toLocaleString('es-ES')}<br>${i.where?'Lugar: '+esc(i.where)+'. ':''}${i.who?'Quién: '+esc(i.who)+'. ':''}${(i.feelings||[]).length?'Cómo se sintió: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', ')+'.':''}${i.desc?'<br>'+esc(i.desc).replace(/\n/g,'<br>'):''}${i.hasAudio?'<br><i>(Incluye nota de voz)</i>':''}</div>`}).join('');
+  addPdfMedia(R).then(()=>setTimeout(()=>window.print(),100));
+};
+
+/* Fotos y vídeos */
+function showMedia(){$('fMediaWrap').style.display=(sType==='pegar'||mList.length)?'flex':'none'}
+function drawMedia(){$('mediaList').innerHTML='';mList.forEach((m,i)=>{const u=URL.createObjectURL(m.blob),d=document.createElement('div');d.className='th';d.innerHTML=(m.t==='video'?`<video src="${u}" muted playsinline></video>`:`<img src="${u}" alt="Foto adjunta">`)+`<button type="button" data-i="${i}" aria-label="Quitar foto o vídeo">✕</button>`;$('mediaList').appendChild(d)});showMedia()}
+async function shrink(f){try{const bm=await createImageBitmap(f),s=Math.min(1,1600/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*s);c.height=Math.round(bm.height*s);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,'image/jpeg',.85))||f}catch(e){return f}}
+$('mediaList').onclick=e=>{const b=e.target.closest('[data-i]');if(b){mList.splice(+b.dataset.i,1);drawMedia()}};
+$('mediaBtn').onclick=()=>$('mediaFile').click();
+$('mediaFile').onchange=async e=>{for(const f of e.target.files){const v=f.type.startsWith('video/');if(v&&f.size>40e6){toast('Vídeo demasiado grande (máx. 40 MB)');continue}if(!v&&!f.type.startsWith('image/'))continue;mList.push({blob:v?f:await shrink(f),t:v?'video':'image'})}e.target.value='';drawMedia()};
+async function loadThumbs(){for(const el of document.querySelectorAll('[data-mid]')){const it=state.items.find(i=>i.id===el.dataset.mid);if(!it)continue;for(const m of it.media||[]){const b=await getA(m.k).catch(()=>null);if(!b)continue;const u=URL.createObjectURL(b),d=document.createElement('div');d.className='th';d.innerHTML=m.t==='video'?`<video src="${u}" controls preload="metadata" playsinline></video>`:`<img src="${u}" alt="Foto adjunta">`;if(m.t!=='video')d.onclick=()=>window.open(u);el.appendChild(d)}}}
+async function addPdfMedia(R){const rows=document.querySelectorAll('#print .pr');for(let n=0;n<R.length;n++)for(const m of R[n].media||[]){try{const b=await getA(m.k);if(!b)continue;if(m.t==='image'){const e=document.createElement('img');e.style.cssText='max-width:7cm;max-height:7cm;margin:6px 6px 0 0';rows[n].appendChild(e);await new Promise(r=>{e.onload=e.onerror=r;e.src=URL.createObjectURL(b)})}else{const e=document.createElement('div');e.innerHTML='<i>(Vídeo adjunto en la app)</i>';rows[n].appendChild(e)}}catch(_){}}}
+async function purgeOrphans(){try{const ks=await tx('readonly',s=>s.getAllKeys()),ok=new Set();state.items.forEach(i=>{ok.add(i.id);(i.media||[]).forEach(m=>ok.add(m.k))});for(const k of ks)if(!ok.has(k))await delA(k)}catch(e){}}
+
+/* Copias: JSON y Drive */
+const b2d=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+async function buildBackup(){const o={version:3,items:[]};for(const i of state.items){const x={...i};if(i.hasAudio){const b=await getA(i.id).catch(()=>null);if(b)x.audio=await b2d(b)}
+    if((i.media||[]).length){x.media=[];for(const m of i.media){const b=await getA(m.k).catch(()=>null);if(b)x.media.push({...m,d:await b2d(b)})}}o.items.push(x)}return JSON.stringify(o)}
+async function mergeBackup(d){let n=0;for(const o of d.items||[]){if(!o.id||state.items.some(i=>i.id===o.id))continue;const{audio,...it}=o;it.hasAudio=false;
+    if(it.media){const mm=[];for(const m of it.media){if(!m.d)continue;try{await putA(m.k,await(await fetch(m.d)).blob());mm.push({k:m.k,t:m.t})}catch(_){}}it.media=mm}if(audio){try{await putA(it.id,await(await fetch(audio)).blob());it.hasAudio=true}catch(_){}}state.items.push(it);n++}save();render();return n}
+$('expBtn').onclick=async()=>{try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([await buildBackup()],{type:'application/json'}));a.download='mi-diario-'+today()+'.json';a.click();toast('Copia exportada')}catch(e){toast('Error al exportar')}};
+$('shareBtn').onclick=async()=>{try{const f=new File([await buildBackup()],'mi-diario-'+today()+'.txt',{type:'text/plain'});
+  if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'Copia de Mi diario'});else{toast('Tu móvil no permite compartir: se descargará el archivo');$('expBtn').click()}}
+  catch(e){if(e.name!=='AbortError')toast('No se pudo compartir la copia')}};
+$('impBtn').onclick=()=>$('impFile').click();
+$('impFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{toast((await mergeBackup(JSON.parse(await f.text())))+' registros importados')}catch(_){toast('Archivo no válido')}e.target.value=''};
+
+function gtoken(prompt){return new Promise((res,rej)=>{if(!CLIENT_ID||!window.google){rej('cfg');return}pend={res,rej};
+  tc=tc||google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:'https://www.googleapis.com/auth/drive.appdata',callback:r=>{if(r.access_token){tok=r.access_token;tokExp=Date.now()+3.4e6;pend.res(tok)}else pend.rej(r.error||'err')}});
+  tc.requestAccessToken({prompt})})}
+const gf=(u,o={})=>fetch(u,{...o,headers:{Authorization:'Bearer '+tok,...(o.headers||{})}}).then(r=>{if(!r.ok)throw r.status;return r});
+const findF=()=>gf('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id)&q='+encodeURIComponent("name='mi-diario.json'")).then(r=>r.json()).then(j=>j.files[0]&&j.files[0].id);
+async function backup(silent){
+  try{if(!tok||Date.now()>tokExp)await gtoken('');const id=await findF(),bd='x'+uid(),meta={name:'mi-diario.json'};if(!id)meta.parents=['appDataFolder'];
+    const body=`--${bd}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${await buildBackup()}\r\n--${bd}--`;
+    await gf('https://www.googleapis.com/upload/drive/v3/files'+(id?'/'+id:'')+'?uploadType=multipart',{method:id?'PATCH':'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body});
+    if(!silent)toast('☁️ Copia guardada en Drive')}
+  catch(e){toast(silent?'☁️ Copia pendiente: abre Ajustes y toca "Copia ahora"':'No se pudo hacer la copia ('+e+')')}
+}
+function autoBackup(){if(!state.settings.cloud||!CLIENT_ID)return;clearTimeout(abT);abT=setTimeout(()=>backup(true),4000)}
+$('cOn').onclick=async()=>{if(!CLIENT_ID){toast('Configura CLIENT_ID primero');return}try{await gtoken('consent');state.settings.cloud=true;save();drawSet();await backup()}catch(e){toast('No se pudo conectar con Google')}};
+$('cNow').onclick=()=>backup();
+$('cRes').onclick=async()=>{try{if(!tok||Date.now()>tokExp)await gtoken('');const id=await findF();if(!id){toast('No hay copia en Drive');return}toast((await mergeBackup(await(await gf('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media')).json()))+' registros restaurados')}catch(e){toast('No se pudo restaurar')}};
+
+/* PIN */
+let pin='',pm='',p1='';
+const sha=s=>crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''));
+function drawLock(msg){$('lockT').textContent=msg||{enter:'Escribe tu PIN',set1:'Crea un PIN de 4 números',set2:'Repite el PIN'}[pm];$('dots').innerHTML=[0,1,2,3].map(i=>`<i class="${i<pin.length?'f':''}"></i>`).join('');$('dots').setAttribute('role','img');$('dots').setAttribute('aria-label',pin.length+' de 4 números');$('forgot').style.display=pm==='enter'?'inline':'none'}
+function showLock(){pin='';pm=state.settings.pin?'enter':'set1';drawLock();$('lock').classList.add('open')}
+$('pad').innerHTML=[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>k===''?'<span></span>':`<button data-d="${k}" aria-label="${k==='⌫'?'Borrar':k}">${k}</button>`).join('');
+$('pad').onclick=async e=>{const b=e.target.closest('[data-d]');if(!b)return;const d=b.dataset.d;if(d==='⌫')pin=pin.slice(0,-1);else if(pin.length<4)pin+=d;drawLock();if(pin.length<4)return;
+  if(pm==='enter'){if(await sha(state.settings.salt+pin)===state.settings.pin){$('lock').classList.remove('open')}else{pin='';drawLock('PIN incorrecto')}}
+  else if(pm==='set1'){p1=pin;pin='';pm='set2';drawLock()}
+  else{if(pin===p1){state.settings.salt=uid();state.settings.pin=await sha(state.settings.salt+pin);save();$('lock').classList.remove('open');toast('PIN guardado')}else{pin='';pm='set1';drawLock('No coinciden. Prueba otra vez')}}};
+$('forgot').onclick=async()=>{if(confirm('Se borrarán TODOS los datos de este dispositivo (si tienes copia en Drive, podrás restaurarlos). ¿Seguro?')){localStorage.removeItem(KEY);await tx('readwrite',s=>s.clear()).catch(()=>{});location.reload()}};
+$('pinBtn').onclick=()=>{$('set').classList.remove('open');state.settings.pin='';showLock()};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.settings.pin&&!$('lock').classList.contains('open'))showLock()});
+
+$('ageS').onclick=()=>speak('Hola. ¿Cuántos años tienes? Toca el botón de 5 a 10 años, o el de 11 años o más.');
+$('age').onclick=e=>{const b=e.target.closest('[data-age]');if(!b)return;state.settings.mode=b.dataset.age;state.settings.ageSet=true;applyMode();save();$('age').classList.remove('open');showLock()};
+/* Accesibilidad */
+function readScreen(){
+  if(speechSynthesis.speaking){speechSynthesis.cancel();return}
+  const open=[...document.querySelectorAll('.ov.open')].sort((a,b)=>(+getComputedStyle(b).zIndex)-(+getComputedStyle(a).zIndex))[0];
+  const t=open?open.innerText:document.querySelector('header').innerText+'. '+$('motT').textContent+'. '+$('list').innerText+'. Botón más, abajo a la derecha: contar algo nuevo.';
+  speak(t.replace(/\p{Extended_Pictographic}/gu,'').replace(/\s+/g,' '));
+}
+$('readAll').onclick=readScreen;
+const AL={helpBtn:'Necesito ayuda: teléfonos',setBtn:'Ajustes',motS:'Leer en voz alta la frase',closeForm:'Cerrar',recBtn:'Grabar nota de voz',delAudio:'Quitar audio',mediaBtn:'Añadir foto o vídeo',fWho:'¿Quién ha sido?',fDate:'¿Cuándo pasó? Fecha',fDesc:'Escríbelo aquí',sEmail:'Correo de mamá o papá',prev:'Escuchar la nota de voz grabada',forgot:'Olvidé mi PIN',openBtn:'Contar algo nuevo'};
+Object.entries(AL).forEach(([i,t])=>$(i).setAttribute('aria-label',t));
+[['fType','¿Qué ha pasado?'],['fFeel','¿Cómo te has sentido?'],['fWhere','¿Dónde ha pasado?']].forEach(([i,t])=>{const e=$(i);e.setAttribute('role','group');e.setAttribute('aria-label',t)});
+document.querySelectorAll('[data-close]').forEach(b=>b.setAttribute('aria-label','Cerrar'));
+const fixA11y=()=>document.querySelectorAll('button[title]:not([aria-label])').forEach(b=>b.setAttribute('aria-label',b.title));
+new MutationObserver(fixA11y).observe(document.body,{childList:true,subtree:true});fixA11y();
+document.querySelectorAll('.ov').forEach(o=>{o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+  const h=o.querySelector('h2,#lockT');if(h){h.tabIndex=-1;if(!h.id)h.id='h'+Math.random().toString(36).slice(2,6);o.setAttribute('aria-labelledby',h.id)}
+  new MutationObserver(()=>{if(o.classList.contains('open')){o._f=document.activeElement;setTimeout(()=>h&&h.focus(),350)}else if(o._f){try{o._f.focus()}catch(e){}o._f=null}}).observe(o,{attributes:true,attributeFilter:['class']})});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('help').classList.contains('open'))$('help').classList.remove('open');else if($('set').classList.contains('open'))$('set').classList.remove('open');else if($('form').classList.contains('open'))closeForm()});
+applyMode();setMot();render();purgeOrphans();
+if(state.settings.ageSet)showLock();else $('age').classList.add('open');
+</script>
+</body>
+</html>
