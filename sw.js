@@ -1,4 +1,4 @@
-const C='mi-diario-v3';
+const C='mi-diario-v4';
 const ASSETS=['./','index.html','manifest.json','icon.svg'];
 
 self.addEventListener('install',e=>{
@@ -21,7 +21,6 @@ self.addEventListener('fetch',e=>{
   const r=e.request;
   if(r.method!=='GET') return;
   const u=new URL(r.url);
-  // No cachear llamadas externas (Google, Apps Script, Drive...)
   if(u.origin!==location.origin) return;
 
   e.respondWith(
@@ -35,7 +34,6 @@ self.addEventListener('fetch',e=>{
   );
 });
 
-// Permite forzar la actualización desde la app si hace falta
 self.addEventListener('message',e=>{
   if(e.data==='skipWaiting') self.skipWaiting();
 });
