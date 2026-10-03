@@ -1,1 +1,49 @@
-{"name":"Mi diario","short_name":"Mi diario","description":"Cuenta lo que te pasa en el cole con tu voz","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#4f46e5","theme_color":"#4f46e5","lang":"es","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
+{
+  "name": "Mi diario",
+  "short_name": "Mi diario",
+  "description": "Cuenta lo que te pasa en el cole con tu voz. Un diario seguro y privado para niños y niñas.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#4f46e5",
+  "theme_color": "#4f46e5",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["education", "kids", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Contar algo nuevo",
+      "short_name": "Contar",
+      "description": "Abrir el formulario para contar lo que ha pasado",
+      "url": "./?action=new",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
