@@ -667,7 +667,27 @@ document.querySelectorAll('.ov').forEach(o=>{o.setAttribute('role','dialog');o.s
   const h=o.querySelector('h2,#lockT');if(h){h.tabIndex=-1;if(!h.id)h.id='h'+Math.random().toString(36).slice(2,6);o.setAttribute('aria-labelledby',h.id)}
   new MutationObserver(()=>{if(o.classList.contains('open')){o._f=document.activeElement;setTimeout(()=>h&&h.focus(),350)}else if(o._f){try{o._f.focus()}catch(e){}o._f=null}}).observe(o,{attributes:true,attributeFilter:['class']})});
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('help').classList.contains('open'))$('help').classList.remove('open');else if($('set').classList.contains('open'))$('set').classList.remove('open');else if($('form').classList.contains('open'))closeForm()});
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* Registro del service worker + aviso de nueva versión */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      if(!nw) return;
+      nw.addEventListener('statechange',()=>{
+        if(nw.state==='installed' && navigator.serviceWorker.controller){
+          toast('Hay una versión nueva. Cierra y abre la app para actualizarla.',null,7000);
+        }
+      });
+    });
+  }).catch(()=>{});
+  let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(reloaded) return;
+    reloaded=true;
+    setTimeout(()=>location.reload(),800);
+  });
+}
+
 applyMode();setMot();render();purgeOrphans();contarUsuario();
 if(state.settings.ageSet)showLock();else $('age').classList.add('open');
 </script>
