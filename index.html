@@ -6,7 +6,7 @@
 <title>Mi diario</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Ik1pIGRpYXJpbzogdW4gZGlhcmlvIHNvbmllbnRlIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzRmNDZlNSIvPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI3MCIgcj0iMTkwIiBmaWxsPSIjNjM2NmYxIi8+CiAgPHJlY3QgeD0iMTI0IiB5PSIxNTAiIHdpZHRoPSIyNzAiIGhlaWdodD0iMjQwIiByeD0iMzQiIGZpbGw9IiNmY2QzNGQiLz4KICA8cmVjdCB4PSIxMjQiIHk9IjE1MCIgd2lkdGg9IjYyIiBoZWlnaHQ9IjI0MCIgcng9IjM0IiBmaWxsPSIjZjU5ZTBiIi8+CiAgPHJlY3QgeD0iMTYwIiB5PSIxNTAiIHdpZHRoPSIyNiIgaGVpZ2h0PSIyNDAiIGZpbGw9IiNmNTllMGIiLz4KICA8cmVjdCB4PSIxNDgiIHk9IjM3MiIgd2lkdGg9IjI2MiIgaGVpZ2h0PSIzMCIgcng9IjE1IiBmaWxsPSIjZmZmZmZmIi8+CiAgPHJlY3QgeD0iMTMyIiB5PSIzODAiIHdpZHRoPSIyODAiIGhlaWdodD0iMjIiIHJ4PSIxMSIgZmlsbD0iI2UwZTdmZiIvPgogIDxwYXRoIGQ9Ik0zMzggMTUwaDQydjc4bC0yMS0xNi0yMSAxNnoiIGZpbGw9IiNlZjQ0NDQiLz4KICA8Y2lyY2xlIGN4PSIyNDIiIGN5PSIyNjIiIHI9IjE3IiBmaWxsPSIjMWUyOTNiIi8+CiAgPGNpcmNsZSBjeD0iMzE4IiBjeT0iMjYyIiByPSIxNyIgZmlsbD0iIzFlMjkzYiIvPgogIDxjaXJjbGUgY3g9IjI0OCIgY3k9IjI1NiIgcj0iNiIgZmlsbD0iI2ZmZiIvPgogIDxjaXJjbGUgY3g9IjMyNCIgY3k9IjI1NiIgcj0iNiIgZmlsbD0iI2ZmZiIvPgogIDxjaXJjbGUgY3g9IjIxNCIgY3k9IjMwMCIgcj0iMTYiIGZpbGw9IiNmYjcxODUiIG9wYWNpdHk9Ii42Ii8+CiAgPGNpcmNsZSBjeD0iMzQ2IiBjeT0iMzAwIiByPSIxNiIgZmlsbD0iI2ZiNzE4NSIgb3BhY2l0eT0iLjYiLz4KICA8cGF0aCBkPSJNMjUwIDI5OHEzMCAzOCA2MCAwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxZTI5M2IiIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxwYXRoIGQ9Ik00MDAgOTZjLTYtMjQtNDQtMjQtNDQgNCAwIDIyIDI2IDM4IDQ0IDU0IDE4LTE2IDQ0LTMyIDQ0LTU0IDAtMjgtMzgtMjgtNDQtNHoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0zNCAtMjIpIHNjYWxlKC45KSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwYXRoIGQ9Ik00MDAgOTZjLTYtMjQtNDQtMjQtNDQgNCAwIDIyIDI2IDM4IDQ0IDU0IDE4LTE2IDQ0LTMyIDQ0LTU0IDAtMjgtMzgtMjgtNDQtNHoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0zNCAtMjIpIHNjYWxlKC45KSIgZmlsbD0iI2ZiNzE4NSIgb3BhY2l0eT0iLjk1Ii8+Cjwvc3ZnPgo=">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon.svg">
 <meta name="theme-color" content="#4f46e5">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -33,7 +33,7 @@ h1{font-size:1.2rem;color:var(--p)}
 .ov.open{opacity:1;visibility:visible}
 .sheet{background:#fff;width:100%;max-height:92dvh;border-radius:24px 24px 0 0;padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
 .mh{display:flex;justify-content:space-between;align-items:center}.mh h2{font-size:1.2rem}
-.fg{display:flex;flex-direction:column;gap:6px}.fg>label{font-weight:700;font-size:.95rem}
+.fg{display:flex;flex-direction:column;gap:6px}.fg>label,.fg>.lbl{font-weight:700;font-size:.95rem}
 .g{display:flex;flex-wrap:wrap;gap:8px}
 .chip{border:2px solid var(--b);background:#fff;border-radius:14px;padding:10px 12px;font-size:.95rem}
 .chip.on{border-color:var(--p);background:var(--pl);font-weight:600}
@@ -95,9 +95,9 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
 <div class="ov" id="form"><div class="sheet">
   <div class="mh"><h2 id="fTitle">Cuéntame qué ha pasado</h2><button class="ib" id="closeForm">✕</button></div>
   <button class="bs" id="readBtn">🔊 Léeme las preguntas</button>
-  <div class="fg"><label>¿Qué ha pasado?</label><div class="g" id="fType"></div></div>
-  <div class="fg"><label>¿Cómo te has sentido? <small style="color:var(--m);font-weight:500">(puedes elegir varios)</small></label><div class="g" id="fFeel"></div></div>
-  <div class="fg"><label>🎙️ Cuéntalo con tu voz</label>
+  <div class="fg"><span class="lbl" id="lblType">¿Qué ha pasado?</span><div class="g" id="fType" role="group" aria-labelledby="lblType"></div></div>
+  <div class="fg"><span class="lbl" id="lblFeel">¿Cómo te has sentido? <small style="color:var(--m);font-weight:500">(puedes elegir varios)</small></span><div class="g" id="fFeel" role="group" aria-labelledby="lblFeel"></div></div>
+  <div class="fg"><span class="lbl">🎙️ Cuéntalo con tu voz</span>
     <div class="rec">
       <button type="button" class="rb" id="recBtn">🎙️</button>
       <div id="recStatus" aria-live="polite" style="font-size:.9rem;color:var(--m)">Toca y habla</div>
@@ -107,15 +107,15 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
       <button type="button" class="bs" id="addAudioBtn" style="display:none">🎙️ Añadir otra nota de voz</button>
     </div>
   </div>
-  <div class="fg"><label>¿Quién ha sido?</label><input class="fc" id="fWho" placeholder="Nombre o cómo es"></div>
-  <div class="fg"><label>¿Dónde ha pasado?</label><div class="g" id="fWhere"></div></div>
-  <div class="fg"><label>¿Cuándo pasó?</label><input type="date" class="fc" id="fDate"></div>
-  <div class="fg" id="fMediaWrap" style="display:none"><label>📷 Fotos o vídeos de lo que ha pasado</label>
+  <div class="fg"><label for="fWho">¿Quién ha sido?</label><input class="fc" id="fWho" placeholder="Nombre o cómo es"></div>
+  <div class="fg"><span class="lbl" id="lblWhere">¿Dónde ha pasado?</span><div class="g" id="fWhere" role="group" aria-labelledby="lblWhere"></div></div>
+  <div class="fg"><label for="fDate">¿Cuándo pasó?</label><input type="date" class="fc" id="fDate"></div>
+  <div class="fg" id="fMediaWrap" style="display:none"><span class="lbl">📷 Fotos o vídeos de lo que ha pasado</span>
     <button type="button" class="bs" id="mediaBtn">＋ Añadir foto o vídeo</button><div class="g" id="mediaList"></div>
     <input type="file" id="mediaFile" accept="image/*,video/*" multiple hidden></div>
-  <div class="fg"><label>¿Se lo has contado a alguien?</label><div class="g" id="fTold"></div></div>
+  <div class="fg"><span class="lbl" id="lblTold">¿Se lo has contado a alguien?</span><div class="g" id="fTold" role="group" aria-labelledby="lblTold"></div></div>
   <button class="bs" id="writeBtn">✍️ Prefiero escribir</button>
-  <div class="fg" id="fDescWrap"><label>Escríbelo aquí</label><textarea class="fc" id="fDesc" placeholder="Qué pasó, quién lo vio, cuántas veces..."></textarea></div>
+  <div class="fg" id="fDescWrap"><label for="fDesc">Escríbelo aquí</label><textarea class="fc" id="fDesc" placeholder="Qué pasó, quién lo vio, cuántas veces..."></textarea></div>
   <button class="bp" id="saveBtn">Guardar</button>
 </div></div>
 
@@ -132,17 +132,17 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
 
 <div class="ov" id="set"><div class="sheet">
   <div class="mh"><h2>⚙️ Ajustes</h2><button class="ib" data-close="set">✕</button></div>
-  <div class="fg"><label>Edad</label><div class="g"><button class="chip" data-m="peque">5-10 años (voz)</button><button class="chip" data-m="mayor">11+ años (texto y voz)</button></div></div>
-  <div class="fg"><label>Correo de mamá/papá</label><input type="email" class="fc" id="sEmail" placeholder="correo@ejemplo.com"></div>
+  <div class="fg"><span class="lbl" id="lblMode">Edad</span><div class="g" role="group" aria-labelledby="lblMode"><button class="chip" data-m="peque">5-10 años (voz)</button><button class="chip" data-m="mayor">11+ años (texto y voz)</button></div></div>
+  <div class="fg"><label for="sEmail">Correo de mamá/papá</label><input type="email" class="fc" id="sEmail" placeholder="correo@ejemplo.com"></div>
   <button class="bs" id="pinBtn">🔒 Cambiar PIN</button>
   <button class="bs" id="pdfBtn">📄 Crear PDF (para el colegio)</button>
-  <div class="fg"><label>☁️ Copia en Google Drive</label>
+  <div class="fg"><span class="lbl">☁️ Copia en Google Drive</span>
     <p id="cloudInfo" style="font-size:.85rem;color:var(--m)"></p>
     <button class="bs" id="cOn">Activar copia automática</button>
     <button class="bs" id="cNow">Copia ahora</button>
     <button class="bs" id="cRes">Restaurar desde Drive</button></div>
-  <div class="fg"><label>💾 Copia manual</label><button class="bs" id="shareBtn">☁️ Guardar copia (enviar a Drive)</button><button class="bs" id="expBtn">Exportar archivo</button><button class="bs" id="impBtn">Importar archivo</button></div>
-  <div class="fg"><label>👥 Comunidad</label>
+  <div class="fg"><span class="lbl">💾 Copia manual</span><button class="bs" id="shareBtn">☁️ Guardar copia (enviar a Drive)</button><button class="bs" id="expBtn">Exportar archivo</button><button class="bs" id="impBtn">Importar archivo</button></div>
+  <div class="fg"><span class="lbl">👥 Comunidad</span>
     <p id="usersInfo" style="font-size:.9rem;color:var(--t);font-weight:600">—</p>
     <p style="font-size:.78rem;color:var(--m)">Se cuenta el número de dispositivos que abren la app de forma anónima para saber cuánta gente la usa. No se envía ningún dato personal ni el contenido del diario.</p>
   </div>
@@ -164,7 +164,7 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
 const KEY='agenda_escolar_v2';
 const CLIENT_ID='238533657262-t9p04bjol6m6mjk15c9ofnqrolqaf71p.apps.googleusercontent.com';
 const COUNTER_URL='https://script.google.com/macros/s/AKfycbybEl-WriUt6Ca3lQoivjutih1IuCa_ZR7d83fr5F-RI92TdI0jtkM6GsbaNvOSiHJ6/exec';
-const APP_VERSION='2.0';
+const APP_VERSION='3.0';
 const MAX_AUDIO_MS=5*60*1000;
 
 const $=id=>document.getElementById(id);
@@ -253,7 +253,7 @@ function render(){
   ${i.desc?`<div class="cd">${esc(i.desc)}</div>`:''}
   ${nA?`<div class="ap"><button class="pb" data-a="play" data-id="${i.id}" aria-label="Reproducir notas de voz">▶</button>${nA} nota${nA>1?'s':''} de voz</div>`:''}
   ${(i.media||[]).length?`<div class="g" data-mid="${i.id}"></div>`:''}
-  <div class="cf"><button class="ib" data-a="say" data-id="${i.id}" title="Leer">🔊</button><button class="ib" data-a="share" data-id="${i.id}" title="Compartir">📤</button><button class="ib" data-a="mail" data-id="${i.id}" title="Correo">✉️</button><button class="ib" data-a="tog" data-id="${i.id}" title="Solucionado">${i.status==='resuelto'?'⏳':'✅'}</button><button class="ib" data-a="edit" data-id="${i.id}" title="Editar">✏️</button><button class="ib" data-a="del" data-id="${i.id}" title="Borrar">🗑️</button></div></div>`
+  <div class="cf"><button class="ib" data-a="say" data-id="${i.id}" title="Leer">🔊</button><button class="ib" data-a="share" data-id="${i.id}" title="Compartir">📤</button><button class="ib" data-a="mail" data-id="${i.id}" title="Correo">✉️</button><button class="ib" data-a="family" data-id="${i.id}" title="Enviar a mi familia">👨‍👩‍👧</button><button class="ib" data-a="tog" data-id="${i.id}" title="Solucionado">${i.status==='resuelto'?'⏳':'✅'}</button><button class="ib" data-a="edit" data-id="${i.id}" title="Editar">✏️</button><button class="ib" data-a="del" data-id="${i.id}" title="Borrar">🗑️</button></div></div>`
   }).join('');
   loadThumbs();
 }
@@ -267,11 +267,43 @@ $('list').addEventListener('click',async e=>{
   else if(a==='say')speak(summary(it));
   else if(a==='share'){const t=summary(it);if(navigator.share)navigator.share({title:'Mi diario',text:t}).catch(()=>{});else mail(it)}
   else if(a==='mail')mail(it);
+  else if(a==='family')family(it);
   else if(a==='tog'){it.status=it.status==='resuelto'?'pendiente':'resuelto';save();render()}
   else if(a==='edit')openForm(it);
   else if(a==='del'){const idx=state.items.indexOf(it);delCache={it,idx};state.items.splice(idx,1);save();render();toast('Borrado',()=>{if(delCache){state.items.splice(delCache.idx,0,delCache.it);save();render();delCache=null}})}
 });
 function mail(i){location.href='mailto:'+encodeURIComponent(state.settings.email||'')+'?subject='+encodeURIComponent('Mi diario: '+fmt(i.date))+'&body='+encodeURIComponent(summary(i))}
+function family(i){
+  const T=TYPES[i.type]||TYPES.otra;
+  const told=(i.toldTo||[]).map(k=>TOLD[k]?TOLD[k][1]:'').filter(Boolean);
+  const texto=
+    'Hola, quiero contaros algo que me ha pasado:\n\n'+
+    '📅 Fecha: '+fmt(i.date)+'\n'+
+    '📍 Lugar: '+(i.where||'—')+'\n'+
+    '👤 Quién: '+(i.who||'—')+'\n'+
+    '❗ Qué: '+(i.title||T[1])+'\n'+
+    ((i.feelings||[]).length?'💭 Cómo me sentí: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').filter(Boolean).join(', ')+'\n':'')+
+    (i.desc?'📝 '+i.desc+'\n':'')+
+    (told.length?'👥 Se lo he contado a: '+told.join(', ')+'\n':'')+
+    (contarAudios(i)?'🎙️ Tengo '+contarAudios(i)+' nota'+(contarAudios(i)>1?'s':'')+' de voz guardada'+(contarAudios(i)>1?'s':'')+' en Mi diario.\n':'')+
+    '\n— Enviado desde Mi diario';
+  const enc=encodeURIComponent(texto);
+  const email=state.settings.email||'';
+  const asunto=encodeURIComponent('Algo que me ha pasado ('+fmt(i.date)+')');
+  const usaWA=confirm('¿Quieres enviarlo por WhatsApp?\n\nAceptar = WhatsApp\nCancelar = Correo electrónico');
+  try{
+    if(usaWA){
+      window.open('https://wa.me/?text='+enc,'_blank','noopener');
+    } else {
+      if(email){ location.href='mailto:'+encodeURIComponent(email)+'?subject='+asunto+'&body='+enc; }
+      else if(navigator.share){ navigator.share({title:'Mi diario', text:texto}).catch(()=>{}); }
+      else { location.href='mailto:?subject='+asunto+'&body='+enc; }
+    }
+    if(contarAudios(i)||(i.media||[]).length){
+      setTimeout(()=>toast('💡 Para enviar también las fotos o el audio, usa "Crear PDF" en Ajustes.',null,6000),1500);
+    }
+  }catch(e){toast('No se pudo abrir la aplicación de mensajes')}
+}
 
 function chips(el,obj,on,multi){el.innerHTML=Object.entries(obj).map(([k,v])=>`<button type="button" class="chip${(multi?on.has(k):on===k)?' on':''}" aria-pressed="${multi?on.has(k):on===k}" data-k="${k}">${v[0]} ${v[1]}</button>`).join('')}
 function drawChips(){
@@ -626,7 +658,6 @@ function readScreen(){
 $('readAll').onclick=readScreen;
 const AL={helpBtn:'Necesito ayuda: teléfonos',setBtn:'Ajustes',motS:'Leer en voz alta la frase',closeForm:'Cerrar',recBtn:'Grabar nota de voz',mediaBtn:'Añadir foto o vídeo',fWho:'¿Quién ha sido?',fDate:'¿Cuándo pasó? Fecha',fDesc:'Escríbelo aquí',sEmail:'Correo de mamá o papá',forgot:'Olvidé mi PIN',openBtn:'Contar algo nuevo'};
 Object.entries(AL).forEach(([i,t])=>$(i).setAttribute('aria-label',t));
-[['fType','¿Qué ha pasado?'],['fFeel','¿Cómo te has sentido?'],['fWhere','¿Dónde ha pasado?'],['fTold','¿Se lo has contado a alguien?']].forEach(([i,t])=>{const e=$(i);if(e){e.setAttribute('role','group');e.setAttribute('aria-label',t)}});
 document.querySelectorAll('[data-close]').forEach(b=>b.setAttribute('aria-label','Cerrar'));
 const fixA11y=()=>document.querySelectorAll('button[title]:not([aria-label])').forEach(b=>b.setAttribute('aria-label',b.title));
 new MutationObserver(fixA11y).observe(document.body,{childList:true,subtree:true});fixA11y();
