@@ -107,6 +107,7 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
       <button type="button" class="bs" id="addAudioBtn" style="display:none">🎙️ Añadir otra nota de voz</button>
     </div>
   </div>
+  <div class="fg"><label for="fTranscript">📝 Transcripción de la voz (puedes corregirla)</label><textarea class="fc" id="fTranscript" rows="4" placeholder="El texto reconocido aparecerá aquí si tu navegador admite la transcripción. También puedes escribirlo."></textarea><small id="transcriptStatus" style="color:var(--m)">La transcripción automática depende del navegador; comprueba el texto antes de guardar.</small></div>
   <div class="fg"><label for="fWho">¿Quién ha sido?</label><input class="fc" id="fWho" placeholder="Nombre o cómo es"></div>
   <div class="fg"><span class="lbl" id="lblWhere">¿Dónde ha pasado?</span><div class="g" id="fWhere" role="group" aria-labelledby="lblWhere"></div></div>
   <div class="fg"><label for="fDate">¿Cuándo pasó?</label><input type="date" class="fc" id="fDate"></div>
@@ -203,7 +204,7 @@ const CONFETTI_COLORS=['#4f46e5','#ef4444','#f59e0b','#10b981','#ec4899','#3b82f
 function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}s=s&&Array.isArray(s.items)?s:{items:[]};s.settings={mode:'peque',email:'',cloud:false,pin:'',salt:'',...(s.settings||{})};return s}
 let state=load();
 let editingId=null;
-let recording=false,rec=null,chunks=[],recTimerInt=null,recStartTs=0;
+let recording=false,rec=null,chunks=[],recTimerInt=null,recStartTs=0,speechRec=null,transcriptFinal='';
 let pendingAudios=[];
 let audioBlobsNew={};
 let delCache=null,tT=null,abT=null,tok=null,tokExp=0,tc=null,pend=null;
@@ -238,7 +239,7 @@ const summary=i=>{
   const nA=contarAudios(i);
   const told=(i.toldTo||[]).map(k=>TOLD[k]?TOLD[k][1]:'').filter(Boolean);
   const toldTxt=told.length?told.join(', '):'';
-  return `${fmt(i.date)} · ${i.title||T[1]}${i.where?' · '+i.where:''}${i.who?' · Quién: '+i.who:''}${(i.feelings||[]).length?' · Me sentí: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', '):''}${toldTxt?' · Se lo ha contado a: '+toldTxt:''}${nA?' · '+nA+' nota'+(nA>1?'s':'')+' de voz':''}${i.desc?'\n'+i.desc:''}`;
+  return `${fmt(i.date)} · ${i.title||T[1]}${i.where?' · '+i.where:''}${i.who?' · Quién: '+i.who:''}${(i.feelings||[]).length?' · Me sentí: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', '):''}${toldTxt?' · Se lo ha contado a: '+toldTxt:''}${nA?' · '+nA+' nota'+(nA>1?'s':'')+' de voz':''}${i.transcript?'\nTranscripción de la voz: '+i.transcript:''}${i.desc?'\n'+i.desc:''}`;
 };
 function render(){
   const L=[...state.items].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.createdAt-a.createdAt);
@@ -250,6 +251,7 @@ function render(){
     return `<div class="card ${i.status==='resuelto'?'ok':''}"><div class="ch"><b>${T[0]} ${esc(i.title||T[1])}</b><span class="dt">📅 ${fmt(i.date)}</span></div>
   ${i.where||i.who?`<div class="mu">${i.where?'📍 '+esc(i.where):''} ${i.who?'👤 '+esc(i.who):''}${told?' · '+told:''}</div>`:''}
   ${(i.feelings||[]).length?`<div>${i.feelings.map(k=>FEEL[k]?FEEL[k][0]:'').join(' ')}</div>`:''}
+  ${i.transcript?`<div class="cd"><b>Transcripción:</b> ${esc(i.transcript)}</div>`:''}
   ${i.desc?`<div class="cd">${esc(i.desc)}</div>`:''}
   ${nA?`<div class="ap"><button class="pb" data-a="play" data-id="${i.id}" aria-label="Reproducir notas de voz">▶</button>${nA} nota${nA>1?'s':''} de voz</div>`:''}
   ${(i.media||[]).length?`<div class="g" data-mid="${i.id}"></div>`:''}
@@ -283,6 +285,7 @@ function family(i){
     '👤 Quién: '+(i.who||'—')+'\n'+
     '❗ Qué: '+(i.title||T[1])+'\n'+
     ((i.feelings||[]).length?'💭 Cómo me sentí: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').filter(Boolean).join(', ')+'\n':'')+
+    (i.transcript?'🗣️ Transcripción de la voz: '+i.transcript+'\n':'')+
     (i.desc?'📝 '+i.desc+'\n':'')+
     (told.length?'👥 Se lo he contado a: '+told.join(', ')+'\n':'')+
     (contarAudios(i)?'🎙️ Tengo '+contarAudios(i)+' nota'+(contarAudios(i)>1?'s':'')+' de voz guardada'+(contarAudios(i)>1?'s':'')+' en Mi diario.\n':'')+
@@ -323,7 +326,7 @@ async function openForm(it){
   stopRec(); pendingAudios=[]; audioBlobsNew={}; mList=[];
   editingId=it?it.id:null;
   sType=it?it.type||'':''; sFeel=new Set(it?it.feelings||[]:[]); sWhere=it?it.where||'':''; sTold=new Set(it?it.toldTo||[]:[]);
-  $('fWho').value=it?it.who||'':''; $('fDate').value=it?it.date:today(); $('fDesc').value=it?it.desc||'':'';
+  $('fWho').value=it?it.who||'':''; $('fDate').value=it?it.date:today(); $('fDesc').value=it?it.desc||'':''; $('fTranscript').value=it?it.transcript||'':''; $('transcriptStatus').textContent='La transcripción automática depende del navegador; comprueba el texto antes de guardar.';
   document.body.classList.toggle('w',!!(it&&it.desc)); drawChips();
   if(it){
     const keys=await audiosDeItem(it);
@@ -345,6 +348,29 @@ $('readBtn').onclick=()=>speak('¿Qué ha pasado? '+Object.values(TYPES).map(v=>
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove('open'));
 
 const pickMime=()=>window.MediaRecorder?['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg'].find(t=>MediaRecorder.isTypeSupported(t))||'':'';
+function startTranscription(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$('transcriptStatus').textContent='Este navegador no admite transcripción automática. El audio se guardará igualmente; puedes escribir el texto aquí.';return}
+  try{
+    speechRec=new SR(); speechRec.lang='es-ES'; speechRec.continuous=true; speechRec.interimResults=true;
+    transcriptFinal=$('fTranscript').value.trim();
+    speechRec.onresult=e=>{
+      let interim='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const part=e.results[i][0].transcript.trim();
+        if(e.results[i].isFinal&&part) transcriptFinal=(transcriptFinal+' '+part).trim();
+        else if(part) interim+=' '+part;
+      }
+      $('fTranscript').value=(transcriptFinal+interim).trim();
+      $('transcriptStatus').textContent='Transcripción en curso. Revisa y corrige el texto antes de guardar.';
+    };
+    speechRec.onerror=e=>{$('transcriptStatus').textContent='La transcripción no está disponible ('+(e.error||'error')+'). El audio se guardará; puedes escribir el texto manualmente.'};
+    speechRec.onend=()=>{if(recording&&speechRec){try{speechRec.start()}catch(_){}}};
+    speechRec.start();
+    $('transcriptStatus').textContent='Escuchando para transcribir. Revisa el texto al terminar.';
+  }catch(e){speechRec=null;$('transcriptStatus').textContent='No se pudo iniciar la transcripción. El audio se guardará; puedes escribir el texto manualmente.'}
+}
+function stopTranscription(){if(speechRec){const r=speechRec;speechRec=null;try{r.onend=null;r.stop()}catch(_){}}}
 async function startRec(){
   if(!navigator.mediaDevices||!window.MediaRecorder){toast('Tu navegador no puede grabar');return}
   try{
@@ -366,6 +392,7 @@ async function startRec(){
     };
     rec.start();
     recording=true;
+    startTranscription();
     $('recBtn').classList.add('on');
     $('recBtn').textContent='⏹️';
     $('recBtn').setAttribute('aria-label','Parar grabación');
@@ -385,7 +412,7 @@ async function startRec(){
 }
 function stopRec(){
   if(recording&&rec&&rec.state!=='inactive')rec.stop();
-  recording=false;
+  recording=false; stopTranscription();
   clearInterval(recTimerInt); recTimerInt=null;
   $('recBtn').classList.remove('on');
   $('recBtn').textContent='🎙️';
@@ -453,6 +480,7 @@ $('saveBtn').onclick=async()=>{
     where:sWhere,
     who:$('fWho').value.trim(),
     date:$('fDate').value||today(),
+    transcript:$('fTranscript').value.trim(),
     desc:$('fDesc').value.trim(),
     toldTo:[...sTold],
     hasAudio: audios.length>0,
@@ -541,7 +569,7 @@ $('pdfBtn').onclick=()=>{
     const nA=contarAudios(i);
     const told=(i.toldTo||[]).map(k=>TOLD[k]?TOLD[k][1]:'').filter(Boolean);
     const toldTxt=told.length?told.join(', '):'Todavía no se lo ha contado a nadie';
-    return `<div class="pr"><b>${n+1}. ${esc(i.title||T[1])}</b><br>Fecha del suceso: ${fmt(i.date)} · Registrado: ${new Date(i.createdAt).toLocaleString('es-ES')}<br>${i.where?'Lugar: '+esc(i.where)+'. ':''}${i.who?'Quién: '+esc(i.who)+'. ':''}${(i.feelings||[]).length?'Cómo se sintió: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', ')+'.':''}<br>Se lo ha contado a: ${esc(toldTxt)}.${i.desc?'<br>'+esc(i.desc).replace(/\n/g,'<br>'):''}${nA?'<br><i>(Incluye '+nA+' nota'+(nA>1?'s':'')+' de voz)</i>':''}</div>`
+    return `<div class="pr"><b>${n+1}. ${esc(i.title||T[1])}</b><br>Fecha del suceso: ${fmt(i.date)} · Registrado: ${new Date(i.createdAt).toLocaleString('es-ES')}<br>${i.where?'Lugar: '+esc(i.where)+'. ':''}${i.who?'Quién: '+esc(i.who)+'. ':''}${(i.feelings||[]).length?'Cómo se sintió: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', ')+'.':''}<br>Se lo ha contado a: ${esc(toldTxt)}.${i.transcript?'<br><b>Transcripción de la voz:</b> '+esc(i.transcript).replace(/\n/g,'<br>'):''}${i.desc?'<br>'+esc(i.desc).replace(/\n/g,'<br>'):''}${nA?'<br><i>(Incluye '+nA+' nota'+(nA>1?'s':'')+' de voz)</i>':''}</div>`
   }).join('');
   addPdfMedia(R).then(()=>setTimeout(()=>window.print(),100));
 };
