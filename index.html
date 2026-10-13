@@ -204,7 +204,7 @@ const CONFETTI_COLORS=['#4f46e5','#ef4444','#f59e0b','#10b981','#ec4899','#3b82f
 function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}s=s&&Array.isArray(s.items)?s:{items:[]};s.settings={mode:'peque',email:'',cloud:false,pin:'',salt:'',...(s.settings||{})};return s}
 let state=load();
 let editingId=null;
-let recording=false,rec=null,chunks=[],recTimerInt=null,recStartTs=0,speechRec=null,transcriptFinal='';
+let recording=false,rec=null,chunks=[],recTimerInt=null,recStartTs=0,speechRec=null,transcriptFinal='',transcriptionStopPromise=Promise.resolve();
 let pendingAudios=[];
 let audioBlobsNew={};
 let delCache=null,tT=null,abT=null,tok=null,tokExp=0,tc=null,pend=null;
@@ -353,6 +353,7 @@ function startTranscription(){
   if(!SR){$('transcriptStatus').textContent='Este navegador no admite transcripción automática. El audio se guardará igualmente; puedes escribir el texto aquí.';return}
   try{
     speechRec=new SR(); speechRec.lang='es-ES'; speechRec.continuous=true; speechRec.interimResults=true;
+    transcriptionStopPromise=Promise.resolve();
     transcriptFinal=$('fTranscript').value.trim();
     speechRec.onresult=e=>{
       let interim='';
@@ -370,7 +371,18 @@ function startTranscription(){
     $('transcriptStatus').textContent='Escuchando para transcribir. Revisa el texto al terminar.';
   }catch(e){speechRec=null;$('transcriptStatus').textContent='No se pudo iniciar la transcripción. El audio se guardará; puedes escribir el texto manualmente.'}
 }
-function stopTranscription(){if(speechRec){const r=speechRec;speechRec=null;try{r.onend=null;r.stop()}catch(_){}}}
+function stopTranscription(){
+  if(!speechRec)return transcriptionStopPromise;
+  const r=speechRec; speechRec=null;
+  transcriptionStopPromise=new Promise(resolve=>{
+    let done=false;
+    const finish=()=>{if(done)return;done=true;clearTimeout(timer);resolve()};
+    const timer=setTimeout(finish,1800);
+    r.onend=finish;
+    try{r.stop()}catch(_){finish()}
+  });
+  return transcriptionStopPromise;
+}
 async function startRec(){
   if(!navigator.mediaDevices||!window.MediaRecorder){toast('Tu navegador no puede grabar');return}
   try{
@@ -412,11 +424,12 @@ async function startRec(){
 }
 function stopRec(){
   if(recording&&rec&&rec.state!=='inactive')rec.stop();
-  recording=false; stopTranscription();
+  recording=false; const transcriptionDone=stopTranscription();
   clearInterval(recTimerInt); recTimerInt=null;
   $('recBtn').classList.remove('on');
   $('recBtn').textContent='🎙️';
   $('recBtn').setAttribute('aria-label','Grabar nota de voz');
+  return transcriptionDone;
 }
 $('recBtn').onclick=()=>recording?stopRec():startRec();
 
@@ -444,7 +457,8 @@ $('addAudioBtn').onclick=()=>startRec();
 
 $('saveBtn').onclick=async()=>{
   if(!sType){toast('Elige qué ha pasado');return}
-  stopRec(); await new Promise(r=>setTimeout(r,200));
+  await stopRec();
+  await transcriptionStopPromise;
   const id=editingId||uid();
   const old=state.items.find(i=>i.id===id);
   const esNueva=!old;
