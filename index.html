@@ -107,7 +107,7 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
       <button type="button" class="bs" id="addAudioBtn" style="display:none">🎙️ Añadir otra nota de voz</button>
     </div>
   </div>
-  <div class="fg"><label for="fTranscript">📝 Transcripción de la voz (puedes corregirla)</label><textarea class="fc" id="fTranscript" rows="4" placeholder="El texto reconocido aparecerá aquí si tu navegador admite la transcripción. También puedes escribirlo."></textarea><small id="transcriptStatus" style="color:var(--m)">La transcripción automática depende del navegador; comprueba el texto antes de guardar.</small></div>
+  <div class="fg"><label for="fTranscript">📝 Transcripción de la voz (puedes corregirla)</label><textarea class="fc" id="fTranscript" rows="4" placeholder="El texto reconocido aparecerá aquí si tu navegador admite la transcripción. También puedes escribirlo."></textarea><small id="transcriptStatus" style="color:var(--m)">La transcripción depende del navegador y puede procesarse mediante un servicio de voz en línea. Con menores, úsala con autorización de un adulto y revisa el texto antes de guardar.</small></div>
   <div class="fg"><label for="fWho">¿Quién ha sido?</label><input class="fc" id="fWho" placeholder="Nombre o cómo es"></div>
   <div class="fg"><span class="lbl" id="lblWhere">¿Dónde ha pasado?</span><div class="g" id="fWhere" role="group" aria-labelledby="lblWhere"></div></div>
   <div class="fg"><label for="fDate">¿Cuándo pasó?</label><input type="date" class="fc" id="fDate"></div>
@@ -326,7 +326,7 @@ async function openForm(it){
   stopRec(); pendingAudios=[]; audioBlobsNew={}; mList=[];
   editingId=it?it.id:null;
   sType=it?it.type||'':''; sFeel=new Set(it?it.feelings||[]:[]); sWhere=it?it.where||'':''; sTold=new Set(it?it.toldTo||[]:[]);
-  $('fWho').value=it?it.who||'':''; $('fDate').value=it?it.date:today(); $('fDesc').value=it?it.desc||'':''; $('fTranscript').value=it?it.transcript||'':''; $('transcriptStatus').textContent='La transcripción automática depende del navegador; comprueba el texto antes de guardar.';
+  $('fWho').value=it?it.who||'':''; $('fDate').value=it?it.date:today(); $('fDesc').value=it?it.desc||'':''; $('fTranscript').value=it?it.transcript||'':''; $('transcriptStatus').textContent='La transcripción depende del navegador y puede procesarse mediante un servicio de voz en línea. Con menores, úsala con autorización de un adulto y revisa el texto antes de guardar.';
   document.body.classList.toggle('w',!!(it&&it.desc)); drawChips();
   if(it){
     const keys=await audiosDeItem(it);
@@ -364,7 +364,7 @@ function startTranscription(){
       $('fTranscript').value=(transcriptFinal+interim).trim();
       $('transcriptStatus').textContent='Transcripción en curso. Revisa y corrige el texto antes de guardar.';
     };
-    speechRec.onerror=e=>{$('transcriptStatus').textContent='La transcripción no está disponible ('+(e.error||'error')+'). El audio se guardará; puedes escribir el texto manualmente.'};
+    speechRec.onerror=e=>{const err=e.error||'error';speechRec=null;$('transcriptStatus').textContent='La transcripción no está disponible ('+err+'). El audio se guardará; puedes escribir el texto manualmente.'};
     speechRec.onend=()=>{if(recording&&speechRec){try{speechRec.start()}catch(_){}}};
     speechRec.start();
     $('transcriptStatus').textContent='Escuchando para transcribir. Revisa el texto al terminar.';
