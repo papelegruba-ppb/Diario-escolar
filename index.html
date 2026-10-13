@@ -105,6 +105,7 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
       <button type="button" class="lnk" id="delAudio" style="display:none">Quitar audio</button>
       <div id="audioList" style="display:flex;flex-direction:column;gap:8px;width:100%"></div>
       <button type="button" class="bs" id="addAudioBtn" style="display:none">🎙️ Añadir otra nota de voz</button>
+      <div class="fg" style="width:100%;text-align:left"><label for="fTranscript">Transcripción de la nota de voz</label><p style="font-size:.78rem;color:var(--m)">La transcripción automática necesita un navegador compatible y puede procesar la voz mediante el servicio de reconocimiento del navegador. Revisa el texto antes de incluirlo en el informe. También puedes corregirlo aquí.</p><div id="transcriptStatus" aria-live="polite" style="font-size:.82rem;color:var(--m)">La transcripción aparecerá aquí si el navegador la admite.</div><textarea class="fc" id="fTranscript" rows="4" placeholder="Texto transcrito o escrito manualmente…"></textarea></div>
     </div>
   </div>
   <div class="fg"><label for="fWho">¿Quién ha sido?</label><input class="fc" id="fWho" placeholder="Nombre o cómo es"></div>
@@ -164,7 +165,7 @@ body.peque #fDescWrap{display:none}body.peque.w #fDescWrap{display:flex}body.may
 const KEY='agenda_escolar_v2';
 const CLIENT_ID='238533657262-t9p04bjol6m6mjk15c9ofnqrolqaf71p.apps.googleusercontent.com';
 const COUNTER_URL='https://script.google.com/macros/s/AKfycbybEl-WriUt6Ca3lQoivjutih1IuCa_ZR7d83fr5F-RI92TdI0jtkM6GsbaNvOSiHJ6/exec';
-const APP_VERSION='3.0';
+const APP_VERSION='3.1';
 const MAX_AUDIO_MS=5*60*1000;
 
 const $=id=>document.getElementById(id);
@@ -204,6 +205,7 @@ function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){
 let state=load();
 let editingId=null;
 let recording=false,rec=null,chunks=[],recTimerInt=null,recStartTs=0;
+let speechRecognition=null,speechBase='';
 let pendingAudios=[];
 let audioBlobsNew={};
 let delCache=null,tT=null,abT=null,tok=null,tokExp=0,tc=null,pend=null;
@@ -238,7 +240,7 @@ const summary=i=>{
   const nA=contarAudios(i);
   const told=(i.toldTo||[]).map(k=>TOLD[k]?TOLD[k][1]:'').filter(Boolean);
   const toldTxt=told.length?told.join(', '):'';
-  return `${fmt(i.date)} · ${i.title||T[1]}${i.where?' · '+i.where:''}${i.who?' · Quién: '+i.who:''}${(i.feelings||[]).length?' · Me sentí: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', '):''}${toldTxt?' · Se lo ha contado a: '+toldTxt:''}${nA?' · '+nA+' nota'+(nA>1?'s':'')+' de voz':''}${i.desc?'\n'+i.desc:''}`;
+  return `${fmt(i.date)} · ${i.title||T[1]}${i.where?' · '+i.where:''}${i.who?' · Quién: '+i.who:''}${(i.feelings||[]).length?' · Me sentí: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', '):''}${toldTxt?' · Se lo ha contado a: '+toldTxt:''}${nA?' · '+nA+' nota'+(nA>1?'s':'')+' de voz':''}${i.desc?'\n'+i.desc:''}${i.transcript?'\nTranscripción: '+i.transcript:''}`;
 };
 function render(){
   const L=[...state.items].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b.createdAt-a.createdAt);
@@ -251,6 +253,7 @@ function render(){
   ${i.where||i.who?`<div class="mu">${i.where?'📍 '+esc(i.where):''} ${i.who?'👤 '+esc(i.who):''}${told?' · '+told:''}</div>`:''}
   ${(i.feelings||[]).length?`<div>${i.feelings.map(k=>FEEL[k]?FEEL[k][0]:'').join(' ')}</div>`:''}
   ${i.desc?`<div class="cd">${esc(i.desc)}</div>`:''}
+  ${i.transcript?`<div class="cd"><b>Transcripción:</b> ${esc(i.transcript)}</div>`:''}
   ${nA?`<div class="ap"><button class="pb" data-a="play" data-id="${i.id}" aria-label="Reproducir notas de voz">▶</button>${nA} nota${nA>1?'s':''} de voz</div>`:''}
   ${(i.media||[]).length?`<div class="g" data-mid="${i.id}"></div>`:''}
   <div class="cf"><button class="ib" data-a="say" data-id="${i.id}" title="Leer">🔊</button><button class="ib" data-a="share" data-id="${i.id}" title="Compartir">📤</button><button class="ib" data-a="mail" data-id="${i.id}" title="Correo">✉️</button><button class="ib" data-a="family" data-id="${i.id}" title="Enviar a mi familia">👨‍👩‍👧</button><button class="ib" data-a="tog" data-id="${i.id}" title="Solucionado">${i.status==='resuelto'?'⏳':'✅'}</button><button class="ib" data-a="edit" data-id="${i.id}" title="Editar">✏️</button><button class="ib" data-a="del" data-id="${i.id}" title="Borrar">🗑️</button></div></div>`
@@ -323,7 +326,7 @@ async function openForm(it){
   stopRec(); pendingAudios=[]; audioBlobsNew={}; mList=[];
   editingId=it?it.id:null;
   sType=it?it.type||'':''; sFeel=new Set(it?it.feelings||[]:[]); sWhere=it?it.where||'':''; sTold=new Set(it?it.toldTo||[]:[]);
-  $('fWho').value=it?it.who||'':''; $('fDate').value=it?it.date:today(); $('fDesc').value=it?it.desc||'':'';
+  $('fWho').value=it?it.who||'':''; $('fDate').value=it?it.date:today(); $('fDesc').value=it?it.desc||'':''; $('fTranscript').value=it?it.transcript||'':''; $('transcriptStatus').textContent=it&&it.transcript?'Transcripción guardada; puedes corregirla.':'La transcripción aparecerá aquí si el navegador la admite.';
   document.body.classList.toggle('w',!!(it&&it.desc)); drawChips();
   if(it){
     const keys=await audiosDeItem(it);
@@ -345,6 +348,50 @@ $('readBtn').onclick=()=>speak('¿Qué ha pasado? '+Object.values(TYPES).map(v=>
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove('open'));
 
 const pickMime=()=>window.MediaRecorder?['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg'].find(t=>MediaRecorder.isTypeSupported(t))||'':'';
+function startSpeechTranscription(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$('transcriptStatus').textContent='Este navegador no admite transcripción automática. Puedes escribirla manualmente; el audio se seguirá guardando.';return}
+  try{
+    speechBase=$('fTranscript').value.trim();
+    speechRecognition=new SR();
+    speechRecognition.lang='es-ES';
+    speechRecognition.continuous=true;
+    speechRecognition.interimResults=true;
+    speechRecognition.onresult=e=>{
+      let finalText='',interimText='';
+      for(let i=0;i<e.results.length;i++){
+        const part=e.results[i][0]&&e.results[i][0].transcript||'';
+        if(e.results[i].isFinal) finalText+=' '+part;
+        else interimText+=' '+part;
+      }
+      $('fTranscript').value=[speechBase,finalText.trim(),interimText.trim()].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+      $('transcriptStatus').textContent=interimText.trim()?'Transcribiendo…':'Transcripción actualizada; revisa el texto.';
+    };
+    speechRecognition.onerror=e=>{
+      $('transcriptStatus').textContent=e.error==='not-allowed'
+        ?'Permiso de reconocimiento de voz denegado. El audio se conserva; puedes escribir la transcripción.'
+        :'La transcripción se ha interrumpido. El audio se conserva y puedes corregir o completar el texto.';
+    };
+    speechRecognition.onend=()=>{
+      if(recording&&speechRecognition){
+        speechBase=$('fTranscript').value.trim();
+        try{speechRecognition.start()}catch(e){}
+      }
+    };
+    speechRecognition.start();
+    $('transcriptStatus').textContent='Transcripción activa. Habla con claridad y revisa el texto al terminar.';
+  }catch(e){
+    speechRecognition=null;
+    $('transcriptStatus').textContent='No se ha podido iniciar la transcripción automática. El audio se conserva; puedes escribir el texto.';
+  }
+}
+function stopSpeechTranscription(){
+  const sr=speechRecognition;
+  speechRecognition=null;
+  if(sr){sr.onend=null;try{sr.stop()}catch(e){}}
+  if($('transcriptStatus')&&$('transcriptStatus').textContent.includes('activa'))
+    $('transcriptStatus').textContent='Grabación terminada. Revisa y corrige la transcripción antes de guardar.';
+}
 async function startRec(){
   if(!navigator.mediaDevices||!window.MediaRecorder){toast('Tu navegador no puede grabar');return}
   try{
@@ -366,6 +413,7 @@ async function startRec(){
     };
     rec.start();
     recording=true;
+    startSpeechTranscription();
     $('recBtn').classList.add('on');
     $('recBtn').textContent='⏹️';
     $('recBtn').setAttribute('aria-label','Parar grabación');
@@ -386,6 +434,7 @@ async function startRec(){
 function stopRec(){
   if(recording&&rec&&rec.state!=='inactive')rec.stop();
   recording=false;
+  stopSpeechTranscription();
   clearInterval(recTimerInt); recTimerInt=null;
   $('recBtn').classList.remove('on');
   $('recBtn').textContent='🎙️';
@@ -454,6 +503,7 @@ $('saveBtn').onclick=async()=>{
     who:$('fWho').value.trim(),
     date:$('fDate').value||today(),
     desc:$('fDesc').value.trim(),
+    transcript:$('fTranscript').value.trim(),
     toldTo:[...sTold],
     hasAudio: audios.length>0,
     status:old?old.status:'pendiente',
@@ -541,7 +591,7 @@ $('pdfBtn').onclick=()=>{
     const nA=contarAudios(i);
     const told=(i.toldTo||[]).map(k=>TOLD[k]?TOLD[k][1]:'').filter(Boolean);
     const toldTxt=told.length?told.join(', '):'Todavía no se lo ha contado a nadie';
-    return `<div class="pr"><b>${n+1}. ${esc(i.title||T[1])}</b><br>Fecha del suceso: ${fmt(i.date)} · Registrado: ${new Date(i.createdAt).toLocaleString('es-ES')}<br>${i.where?'Lugar: '+esc(i.where)+'. ':''}${i.who?'Quién: '+esc(i.who)+'. ':''}${(i.feelings||[]).length?'Cómo se sintió: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', ')+'.':''}<br>Se lo ha contado a: ${esc(toldTxt)}.${i.desc?'<br>'+esc(i.desc).replace(/\n/g,'<br>'):''}${nA?'<br><i>(Incluye '+nA+' nota'+(nA>1?'s':'')+' de voz)</i>':''}</div>`
+    return `<div class="pr"><b>${n+1}. ${esc(i.title||T[1])}</b><br>Fecha del suceso: ${fmt(i.date)} · Registrado: ${new Date(i.createdAt).toLocaleString('es-ES')}<br>${i.where?'Lugar: '+esc(i.where)+'. ':''}${i.who?'Quién: '+esc(i.who)+'. ':''}${(i.feelings||[]).length?'Cómo se sintió: '+i.feelings.map(k=>FEEL[k]?FEEL[k][1]:'').join(', ')+'.':''}<br>Se lo ha contado a: ${esc(toldTxt)}.${i.desc?'<br>'+esc(i.desc).replace(/\n/g,'<br>'):''}${i.transcript?'<br><b>Transcripción de la nota de voz:</b> '+esc(i.transcript).replace(/\n/g,'<br>'):''}${nA?'<br><i>(Incluye '+nA+' nota'+(nA>1?'s':'')+' de voz)</i>':''}</div>`
   }).join('');
   addPdfMedia(R).then(()=>setTimeout(()=>window.print(),100));
 };
