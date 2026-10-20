@@ -588,7 +588,7 @@ $('pdfBtn').onclick=()=>{
   addPdfMedia(R).then(()=>setTimeout(()=>window.print(),100));
 };
 
-function showMedia(){$('fMediaWrap').style.display=(sType==='pegar'||mList.length)?'flex':'none'}
+function showMedia(){$('fMediaWrap').style.display='flex'}
 function drawMedia(){$('mediaList').innerHTML='';mList.forEach((m,i)=>{const u=URL.createObjectURL(m.blob),d=document.createElement('div');d.className='th';d.innerHTML=(m.t==='video'?`<video src="${u}" muted playsinline></video>`:`<img src="${u}" alt="Foto adjunta">`)+`<button type="button" data-i="${i}" aria-label="Quitar foto o vídeo">✕</button>`;$('mediaList').appendChild(d)});showMedia()}
 async function shrink(f){try{const bm=await createImageBitmap(f),s=Math.min(1,1600/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*s);c.height=Math.round(bm.height*s);c.getContext('2d').drawImage(bm,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,'image/jpeg',.85))||f}catch(e){return f}}
 $('mediaList').onclick=e=>{const b=e.target.closest('[data-i]');if(b){mList.splice(+b.dataset.i,1);drawMedia()}};
